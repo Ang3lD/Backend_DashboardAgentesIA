@@ -1,32 +1,52 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.infrastructure.database.config import engine, Base
-from src.infrastructure.api.routes import router as clients_router
+from src.infrastructure.database.config import engine, Base, SessionLocal
 
-# Creates the tables in the database the first time the app is run
+# Importar modelos para que SQLAlchemy los registre antes de create_all
+import src.infrastructure.database.auth_models  # noqa: F401
+from src.infrastructure.api.routes import router as clients_router
+from src.infrastructure.api.auth_routes import auth_router
+from src.application.auth_service import ensure_default_admin
+
+# Crea las tablas (incluyendo la tabla de usuarios) si no existen
 Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI application
 app = FastAPI(
-    title="Clients and Agents API",
-    description="Backend using Hexagonal Architecture, ready for PostgreSQL",
-    version="1.0.0"
+    title="Ámbar Rojo — Agents API",
+    description="Backend con Arquitectura Hexagonal y autenticación JWT segura.",
+    version="2.0.0",
 )
 
-# Basic CORS configuration for Frontend connectivity (e.g., React)
+# CORS — en producción reemplaza "*" por la URL exacta del frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, change this to your frontend URL
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Register our routes (endpoints) in the application
-app.include_router(clients_router)
+# Registrar routers
+app.include_router(auth_router)    # /auth/login, /auth/me
+app.include_router(clients_router) # /api/clients, /api/agents …
+
+
+@app.on_event("startup")
+def on_startup():
+    """Al arrancar: crear el usuario admin por defecto si la tabla está vacía."""
+    db = SessionLocal()
+    try:
+        ensure_default_admin(db)
+    finally:
+        db.close()
+
 
 @app.get("/")
 def root():
-    """Root endpoint to check if the API is running."""
-    return {"message": "Hello! The backend API is running correctly. Visit /docs to see the documentation."}
+    """Root endpoint para verificar que la API está en línea."""
+    return {
+        "message": "API de Ámbar Rojo activa. Visita /docs para la documentación.",
+        "auth": "POST /auth/login para obtener un token JWT.",
+    }
