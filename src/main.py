@@ -20,6 +20,7 @@ app = FastAPI(
 )
 # --- INICIO DEL HEALTH CHECK ---
 @app.get("/")
+@app.get("/health")  # Ruta de respaldo por si el proxy limpia la barra diagonal
 def health_check():
     return {"status": "ok", "message": "API funcionando"}
 # --- FIN DEL HEALTH CHECK ---
