@@ -18,12 +18,7 @@ app = FastAPI(
     description="Backend con Arquitectura Hexagonal y autenticación JWT segura.",
     version="2.0.0",
 )
-# --- INICIO DEL HEALTH CHECK ---
-@app.get("/")
-@app.get("/health")  # Ruta de respaldo por si el proxy limpia la barra diagonal
-def health_check():
-    return {"status": "ok", "message": "API funcionando"}
-# --- FIN DEL HEALTH CHECK ---
+
 # CORS — en producción reemplaza "*" por la URL exacta del frontend
 app.add_middleware(
     CORSMiddleware,
@@ -32,6 +27,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- INICIO DEL HEALTH CHECK UNIFICADO (RUTA RAÍZ) ---
+@app.get("/")
+@app.get("/health")  
+def health_check():
+    """Root endpoint y Health Check para Easypanel Zero Downtime"""
+    return {
+        "status": "ok", 
+        "message": "API de Ámbar Rojo activa. Visita /docs para la documentación.",
+        "auth": "POST /auth/login para obtener un token JWT."
+    }
+# --- FIN DEL HEALTH CHECK UNIFICADO ---
 
 # Registrar routers
 app.include_router(auth_router)    # /auth/login, /auth/me
@@ -46,12 +53,3 @@ def on_startup():
         ensure_default_admin(db)
     finally:
         db.close()
-
-
-@app.get("/")
-def root():
-    """Root endpoint para verificar que la API está en línea."""
-    return {
-        "message": "API de Ámbar Rojo activa. Visita /docs para la documentación.",
-        "auth": "POST /auth/login para obtener un token JWT.",
-    }
