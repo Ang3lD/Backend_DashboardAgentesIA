@@ -18,7 +18,11 @@ app = FastAPI(
     description="Backend con Arquitectura Hexagonal y autenticación JWT segura.",
     version="2.0.0",
 )
-
+# --- INICIO DEL HEALTH CHECK ---
+@app.get("/")
+def health_check():
+    return {"status": "ok", "message": "API funcionando"}
+# --- FIN DEL HEALTH CHECK ---
 # CORS — en producción reemplaza "*" por la URL exacta del frontend
 app.add_middleware(
     CORSMiddleware,
