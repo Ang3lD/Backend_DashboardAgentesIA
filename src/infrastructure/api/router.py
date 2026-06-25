@@ -1,8 +1,9 @@
 from fastapi import APIRouter
-from src.infrastructure.api.routers import clients, health, billing
+from src.infrastructure.api.routers import clients, health, billing, payments
 
 api_router = APIRouter()
 
 api_router.include_router(health.router)
 api_router.include_router(clients.router)
 api_router.include_router(billing.router)
+api_router.include_router(payments.router)
