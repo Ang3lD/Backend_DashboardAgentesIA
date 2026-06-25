@@ -8,6 +8,7 @@ import src.infrastructure.database.auth_models  # noqa: F401
 from src.infrastructure.api.routers.clients import router as clients_router
 from src.infrastructure.api.auth_routes import auth_router
 from src.infrastructure.api.routers.billing import router as billing_router
+from src.infrastructure.api.routers.logs import router as logs_router
 from src.application.auth_service import ensure_default_admin
 
 # Crea las tablas (incluyendo la tabla de usuarios) si no existen
@@ -45,6 +46,7 @@ def health_check():
 app.include_router(auth_router)    # /auth/login, /auth/me
 app.include_router(clients_router) # /api/clients, /api/agents …
 app.include_router(billing_router)
+app.include_router(logs_router)    # /api/logs
 
 @app.on_event("startup")
 def on_startup():
