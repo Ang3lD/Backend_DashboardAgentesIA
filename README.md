@@ -1,15 +1,24 @@
-# Agency Dashboard
+# Agency Dashboard Backend 🚀
 
-Este proyecto consiste en el núcleo del sistema para una plataforma de administración diseñada específicamente para agencias (Agency Dashboard). Su propósito principal es centralizar y facilitar la gestión operativa entre la agencia, su cartera de clientes y la fuerza de trabajo asignada a cada uno de ellos.
+Este proyecto es el backend de una plataforma de administración para agencias (Agency Dashboard). Proporciona una API RESTful robusta y eficiente para gestionar clientes (Clients) y sus respectivos agentes (Agents) asignados.
 
-## Descripción del Proyecto
+## 🏗️ Arquitectura y Tecnologías
+El sistema está construido en **Python** utilizando **FastAPI**, lo que garantiza un alto rendimiento y la generación automática de documentación interactiva (Swagger UI). 
 
-El sistema actúa como el motor central que permite a las agencias mantener un control total sobre sus operaciones diarias. A través de esta plataforma, los administradores pueden gestionar un catálogo completo de clientes, registrar sus datos esenciales, y llevar un seguimiento detallado del estado de sus cuentas y los planes que tienen contratados (básico, estándar o premium).
+El código está estructurado bajo los principios de la **Arquitectura Hexagonal (Ports and Adapters)**, lo cual divide la aplicación en capas claras:
+- **Domain**: Contiene las entidades puras de negocio.
+- **Application**: Define los casos de uso y los puertos (interfaces) del sistema.
+- **Infrastructure**: Implementa los detalles técnicos como los controladores de la API y la conexión a la base de datos a través de repositorios.
 
-Adicionalmente, la plataforma resuelve el problema de la asignación de recursos humanos y tecnológicos. Permite vincular y administrar "Agentes" (ya sean operativos, de soporte o flujos de trabajo automatizados) a clientes específicos. De esta manera, se tiene visibilidad completa sobre qué agente está atendiendo a qué cliente, su estado de actividad y los canales de comunicación que está utilizando.
+Para la persistencia de datos, se utiliza **PostgreSQL** orquestado mediante contenedores de **Docker** (`docker-compose`), y se interactúa con la base de datos utilizando **SQLAlchemy** como ORM.
 
-## Funcionalidades Clave
+## ⚙️ Características Principales
+- **Gestión de Clientes**: Endpoints para crear clientes, consultar el catálogo completo o buscar detalles por ID.
+- **Gestión de Agentes**: Funcionalidad para listar todos los agentes operativos asignados a un cliente en específico.
+- **Validación de Datos**: Uso exhaustivo de Pydantic para garantizar la integridad de las peticiones.
 
-- **Gestión Centralizada de Clientes**: Permite dar de alta a nuevos clientes en la plataforma, consultar la lista completa de empresas afiliadas y acceder a perfiles detallados de cada uno para conocer su estatus operativo y fechas de inicio.
-- **Control de Agentes Asignados**: Facilita la auditoría y listado de todos los agentes que están trabajando activamente para un cliente en específico, manteniendo un orden estricto en la delegación de responsabilidades.
-- **Arquitectura Escalable**: Todo el sistema está diseñado bajo una estructura modular orientada a las reglas de negocio, lo que permite que la plataforma pueda crecer, adaptarse a nuevas necesidades del mercado y conectar con futuras interfaces de usuario sin comprometer su estabilidad.
+## 🚀 Cómo ejecutarlo localmente
+1. Levantar la base de datos: `docker-compose up -d`
+2. Crear el entorno virtual: `python -m venv venv` e instalar dependencias: `pip install -r requirements.txt`
+3. Arrancar el servidor: `uvicorn src.main:app --reload`
+4. Visitar `http://127.0.0.1:8000/docs` para explorar la API.
