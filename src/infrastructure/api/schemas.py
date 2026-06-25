@@ -16,6 +16,15 @@ class ClientCreate(ClientBase):
     """Schema for creating a new client."""
     pass
 
+class ClientUpdate(BaseModel):
+    """Schema for partial update of a client (PUT)."""
+    name: Optional[str] = None
+    slug: Optional[str] = None
+    plan_id: Optional[int] = None
+    status: Optional[str] = None
+    start_date: Optional[date] = None
+    notes: Optional[str] = None
+
 class ClientResponse(ClientBase):
     """Schema for returning client data (includes ID and timestamps)."""
     id: int
@@ -36,55 +45,88 @@ class AgentBase(BaseModel):
     workflow_id: Optional[str] = None
     chatwoot_inbox: Optional[str] = None
     model: str = "gpt-4o-mini"
-    status: str = "stopped"
+    status: str = "active"
 
 class AgentCreate(BaseModel):
-    """Schema for creating or updating an agent."""
+    """Schema for creating an agent under a client."""
     name: str
-    description: Optional[str] = None
-    model: str = "gpt-4o-mini"
-    status: str = "stopped"
-    system_prompt: Optional[str] = None
-    temperature: Optional[float] = 0.7
-    max_tokens: Optional[int] = 2048
-    tags: Optional[List[str]] = []
-    client_id: Optional[int] = None
-    type: Optional[str] = None
-
-class AgentUpdate(BaseModel):
-    """Schema for partial agent update (PATCH)."""
-    name: Optional[str] = None
-    description: Optional[str] = None
-    model: Optional[str] = None
-    status: Optional[str] = None
-    system_prompt: Optional[str] = None
-    temperature: Optional[float] = None
-    max_tokens: Optional[int] = None
-    tags: Optional[List[str]] = None
-    client_id: Optional[int] = None
-    type: Optional[str] = None
-
-class AgentResponse(BaseModel):
-    """Schema for returning agent data."""
-    id: int
-    name: str
-    client_id: Optional[int] = None
     type: Optional[str] = None
     description: Optional[str] = None
     workflow_id: Optional[str] = None
     chatwoot_inbox: Optional[str] = None
     model: str = "gpt-4o-mini"
-    status: str = "stopped"
-    system_prompt: Optional[str] = None
-    temperature: Optional[float] = 0.7
-    max_tokens: Optional[int] = 2048
-    tags: Optional[List[str]] = []
-    agent_type: Optional[str] = None
+    status: str = "active"
+
+class AgentUpdate(BaseModel):
+    """Schema for partial agent update (PUT)."""
+    name: Optional[str] = None
+    type: Optional[str] = None
+    description: Optional[str] = None
+    workflow_id: Optional[str] = None
+    chatwoot_inbox: Optional[str] = None
+    model: Optional[str] = None
+    status: Optional[str] = None
+
+class AgentResponse(BaseModel):
+    """Schema for returning agent data."""
+    id: int
+    client_id: Optional[int] = None
+    name: str
+    type: Optional[str] = None
+    description: Optional[str] = None
+    workflow_id: Optional[str] = None
+    chatwoot_inbox: Optional[str] = None
+    model: str = "gpt-4o-mini"
+    status: str = "active"
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+
+
+# ─── Payment schemas ──────────────────────────────────────────────────────────
+
+class PaymentCreate(BaseModel):
+    """Schema for registering a payment."""
+    period_month: str          # "YYYY-MM"
+    amount_mxn: float
+    paid_at: date
+    notes: Optional[str] = None
+
+class PaymentResponse(BaseModel):
+    """Schema for returning payment data."""
+    id: int
+    client_id: int
+    period_month: str
+    amount_mxn: float
+    paid_at: date
+    notes: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# ─── Billing Summary schema ───────────────────────────────────────────────────
+
+class BillingSummaryResponse(BaseModel):
+    """Full billing summary for a client."""
+    client_id: int
+    client_name: str
+    plan_name: Optional[str] = None
+    monthly_fee: float
+    start_date: Optional[str] = None
+    months_active: int
+    months_paid: int
+    months_owed: int
+    total_owed_mxn: float
+    last_paid_at: Optional[str] = None
+    days_since_payment: Optional[int] = None
+    billing_status: str          # "current" | "overdue" | "critical"
+    paid_periods: List[str]
+    missing_periods: List[str]
+    payments: List[dict]
 
 
 # ─── Metrics schemas ──────────────────────────────────────────────────────────

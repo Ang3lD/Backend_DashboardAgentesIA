@@ -32,3 +32,14 @@ class Agent:
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     id: Optional[int] = None
+
+@dataclass
+class Payment:
+    """Entity representing a monthly payment registered for a Client."""
+    client_id: int
+    period_month: str          # "YYYY-MM"
+    amount_mxn: float
+    paid_at: date
+    notes: Optional[str] = None
+    created_at: Optional[datetime] = None
+    id: Optional[int] = None

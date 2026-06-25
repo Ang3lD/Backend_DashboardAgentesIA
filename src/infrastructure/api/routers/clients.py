@@ -1,5 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
-from typing import List
+"""
+Router: /api/clients
+
+Endpoints
+---------
+GET    /api/clients                          — list clients (optional ?status=)
+GET    /api/clients/{id}                     — single client
+POST   /api/clients                          — create client
+PUT    /api/clients/{id}                     — update client
+
+GET    /api/clients/{id}/agents              — agents for a client
+POST   /api/clients/{id}/agents              — create agent under client
+PUT    /api/clients/{id}/agents/{agent_id}   — update agent under client
+"""
+from fastapi import APIRouter, Depends, HTTPException, Query
+from typing import List, Optional
 
 from src.infrastructure.api import schemas
 from src.application.services import ClientService
@@ -8,44 +22,98 @@ from src.infrastructure.api.dependencies import get_client_service
 
 router = APIRouter(prefix="/api/clients", tags=["Clients"])
 
+
+# ─── Clients ─────────────────────────────────────────────────────────────────
+
 @router.get("", response_model=List[schemas.ClientResponse])
-def get_clients(service: ClientService = Depends(get_client_service)):
-    """Retrieves the list of all clients."""
-    return service.get_clients()
+def get_clients(
+    status: Optional[str] = Query(
+        default=None,
+        description="Filter by status: active | inactive | paused",
+        enum=["active", "inactive", "paused"],
+    ),
+    service: ClientService = Depends(get_client_service),
+):
+    """Returns the list of all clients. Use ?status= to filter."""
+    return service.get_clients(status=status)
+
 
 @router.get("/{id}", response_model=schemas.ClientResponse)
 def get_client(id: int, service: ClientService = Depends(get_client_service)):
-    """Retrieves the details of a specific client by ID."""
+    """Returns the details of a specific client by ID."""
     client = service.get_client(id)
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
     return client
 
-@router.post("", response_model=schemas.ClientResponse)
-def create_client(client_data: schemas.ClientCreate, service: ClientService = Depends(get_client_service)):
-    """Creates a new client in the system."""
-    new_client_domain = Client(
+
+@router.post("", response_model=schemas.ClientResponse, status_code=201)
+def create_client(
+    client_data: schemas.ClientCreate,
+    service: ClientService = Depends(get_client_service),
+):
+    """Creates a new client."""
+    new_client = Client(
         name=client_data.name,
         slug=client_data.slug,
         plan_id=client_data.plan_id,
         status=client_data.status,
         start_date=client_data.start_date,
-        notes=client_data.notes
+        notes=client_data.notes,
     )
-    return service.create_client(new_client_domain)
+    return service.create_client(new_client)
+
+
+@router.put("/{id}", response_model=schemas.ClientResponse)
+def update_client(
+    id: int,
+    client_data: schemas.ClientUpdate,
+    service: ClientService = Depends(get_client_service),
+):
+    """Updates an existing client. Only provided fields are changed."""
+    updated = service.update_client(id, client_data.model_dump(exclude_none=True))
+    if not updated:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return updated
+
+
+# ─── Agents (nested under client) ────────────────────────────────────────────
 
 @router.get("/{id}/agents", response_model=List[schemas.AgentResponse])
 def get_client_agents(id: int, service: ClientService = Depends(get_client_service)):
-    """Retrieves all agents assigned to a specific client."""
+    """Returns all agents assigned to a specific client."""
     client = service.get_client(id)
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
     return service.get_client_agents(id)
 
-@router.get("/api/clients/{id}/dashboard", response_model=schemas.ClientDashboardResponse, tags=["Clients"])
-def get_client_dashboard(id: int, days: int = 30, service: ClientService = Depends(get_client_service)):
-    """Retrieves the full dashboard metrics and overview for a specific client."""
-    dashboard_data = service.get_client_dashboard(id, days)
-    if not dashboard_data:
+
+@router.post("/{id}/agents", response_model=schemas.AgentResponse, status_code=201)
+def create_agent(
+    id: int,
+    agent_data: schemas.AgentCreate,
+    service: ClientService = Depends(get_client_service),
+):
+    """Creates a new agent under a specific client."""
+    client = service.get_client(id)
+    if not client:
         raise HTTPException(status_code=404, detail="Client not found")
-    return dashboard_data
+    data = agent_data.model_dump()
+    return service.create_agent(id, data)
+
+
+@router.put("/{id}/agents/{agent_id}", response_model=schemas.AgentResponse)
+def update_agent(
+    id: int,
+    agent_id: int,
+    agent_data: schemas.AgentUpdate,
+    service: ClientService = Depends(get_client_service),
+):
+    """Updates an agent that belongs to the specified client."""
+    updated = service.update_agent(id, agent_id, agent_data.model_dump(exclude_none=True))
+    if not updated:
+        raise HTTPException(
+            status_code=404,
+            detail="Agent not found or does not belong to this client",
+        )
+    return updated
