@@ -331,6 +331,42 @@ ALTER TABLE ONLY public.clients
 
 
 --
+-- Name: payments; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.payments (
+    id integer NOT NULL,
+    client_id integer NOT NULL,
+    period_month character varying(7) NOT NULL,
+    amount_mxn numeric(10,2) NOT NULL,
+    paid_at date NOT NULL,
+    notes text,
+    created_at timestamp without time zone DEFAULT now()
+);
+
+ALTER TABLE public.payments OWNER TO admin;
+
+CREATE SEQUENCE public.payments_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.payments_id_seq OWNER TO admin;
+ALTER SEQUENCE public.payments_id_seq OWNED BY public.payments.id;
+ALTER TABLE ONLY public.payments ALTER COLUMN id SET DEFAULT nextval('public.payments_id_seq'::regclass);
+
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_pkey PRIMARY KEY (id);
+
+CREATE INDEX idx_payments_client ON public.payments USING btree (client_id);
+
+ALTER TABLE ONLY public.payments
+    ADD CONSTRAINT payments_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.clients(id) ON DELETE CASCADE;
+
+--
 -- PostgreSQL database dump complete
 --
 

@@ -12,6 +12,7 @@ from src.infrastructure.api.routers.billing import router as billing_router
 from src.infrastructure.api.routers.payments import router as payments_router
 from src.infrastructure.api.routers.health import router as health_router
 from src.infrastructure.api.routers.logs import router as logs_router
+from src.infrastructure.api.routers.plans import router as plans_router
 from src.infrastructure.api.auth_routes import auth_router
 from src.application.auth_service import ensure_default_admin
 
@@ -29,7 +30,7 @@ app = FastAPI(
     version="2.1.0",
 )
 
-# CORS — en producción reemplaza \"*\" por la URL exacta del frontend
+# CORS — en producción reemplaza "*" por la URL exacta del frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -55,6 +56,7 @@ app.include_router(billing_router)   # /api/clients/{id}/billing
 app.include_router(payments_router)  # /api/clients/{id}/payments
 app.include_router(health_router)   # /api/health
 app.include_router(logs_router)     # /api/logs
+app.include_router(plans_router)    # /api/plans
 
 # ─── Startup ──────────────────────────────────────────────────────────────────
 @app.on_event("startup")

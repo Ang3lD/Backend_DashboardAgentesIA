@@ -47,7 +47,7 @@ class AgentModel(Base):
     __tablename__ = "agents"
 
     id              = Column(Integer, primary_key=True, index=True)
-    client_id       = Column(Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=True)
+    client_id       = Column(Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False)
     name            = Column(String(100), nullable=False)
     type            = Column(String(50))
     description     = Column(Text)

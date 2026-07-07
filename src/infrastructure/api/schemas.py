@@ -211,3 +211,15 @@ class ClientDashboardResponse(BaseModel):
     summary: ClientSummary
     agents: List[ClientDashboardAgent]
     timeseries: List[TimeseriesPoint]
+
+# ─── Plan schemas ─────────────────────────────────────────────────────────────
+
+class PlanResponse(BaseModel):
+    id: int
+    name: str
+    price_mxn: float
+    description: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
