@@ -157,6 +157,14 @@ class ClientRepositorySQL(ClientRepositoryPort):
         client.updated_at = db_c.updated_at
         return client
 
+    def delete(self, client_id: int) -> bool:
+        db_c = self.db.query(ClientModel).filter(ClientModel.id == client_id).first()
+        if not db_c:
+            return False
+        self.db.delete(db_c)
+        self.db.commit()
+        return True
+
     def update(self, client_id: int, data: dict) -> Optional[ClientDomain]:
         db_c = self.db.query(ClientModel).filter(ClientModel.id == client_id).first()
         if not db_c:
@@ -181,6 +189,14 @@ class AgentRepositorySQL(AgentRepositoryPort):
     def get_by_client_id(self, client_id: int) -> List[AgentDomain]:
         agents = self.db.query(AgentModel).filter(AgentModel.client_id == client_id).all()
         return [_agent_to_domain(a) for a in agents]
+
+    def delete(self, agent_id: int) -> bool:
+        db_a = self.db.query(AgentModel).filter(AgentModel.id == agent_id).first()
+        if not db_a:
+            return False
+        self.db.delete(db_a)
+        self.db.commit()
+        return True
 
     # ── Extra methods used directly by routes ──────────────────────────────────
 
