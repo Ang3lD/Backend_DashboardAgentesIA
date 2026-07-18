@@ -82,6 +82,9 @@ def create_client(
         slug=client_data.slug,
         plan_id=client_data.plan_id,
         status=client_data.status,
+        phone=client_data.phone,
+        email=client_data.email,
+        contact_name=client_data.contact_name,
         start_date=client_data.start_date,
         notes=client_data.notes,
     )
