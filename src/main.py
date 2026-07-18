@@ -10,6 +10,7 @@ import src.infrastructure.database.repositories  # noqa: F401  (ClientModel, Age
 from src.infrastructure.api.routers.clients import router as clients_router
 from src.infrastructure.api.routers.billing import router as billing_router, global_billing_router
 from src.infrastructure.api.routers.payments import router as payments_router
+from src.infrastructure.api.routers.agents import router as agents_router
 from src.infrastructure.api.routers.health import router as health_router
 from src.infrastructure.api.routers.logs import router as logs_router
 from src.infrastructure.api.routers.plans import router as plans_router
@@ -56,6 +57,7 @@ app.include_router(auth_router)     # /auth/login, /auth/me
 app.include_router(clients_router)  # /api/clients, /api/clients/{id}/agents
 app.include_router(billing_router)   # /api/clients/{id}/billing
 app.include_router(global_billing_router) # /api/billing/month-summary
+app.include_router(agents_router)    # /api/agents
 app.include_router(payments_router)  # /api/clients/{id}/payments
 app.include_router(health_router)   # /api/health
 app.include_router(logs_router)     # /api/logs
