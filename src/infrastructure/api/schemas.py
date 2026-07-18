@@ -84,6 +84,10 @@ class AgentResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class GlobalAgentResponse(AgentResponse):
+    """Agent response with client name."""
+    client_name: str
+
 
 # ─── Payment schemas ──────────────────────────────────────────────────────────
 
