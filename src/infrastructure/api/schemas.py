@@ -287,3 +287,17 @@ class GlobalMetricsSummary(BaseModel):
     mrr_actual: float
     total_owed: float
     agents_count: int
+
+class PendingClientInfo(BaseModel):
+    id: int
+    name: str
+    monthly_fee: float
+
+class MonthBillingSummaryResponse(BaseModel):
+    clients_total: int
+    clients_paid: int
+    clients_pending: int
+    expected_mxn: float
+    collected_mxn: float
+    pending_mxn: float
+    pending_clients: List[PendingClientInfo]

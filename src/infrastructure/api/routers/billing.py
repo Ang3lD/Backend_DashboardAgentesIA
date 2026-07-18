@@ -12,6 +12,16 @@ from src.application.services import BillingService
 from src.infrastructure.api.dependencies import get_billing_service
 
 router = APIRouter(prefix="/api/clients", tags=["Billing"])
+global_billing_router = APIRouter(prefix="/api/billing", tags=["Billing"])
+
+@global_billing_router.get("/month-summary", response_model=schemas.MonthBillingSummaryResponse)
+def get_month_summary(
+    month: str = None,
+    service: BillingService = Depends(get_billing_service),
+):
+    """Returns a collection summary for a specific month (YYYY-MM)."""
+    return service.get_month_summary(month)
+
 
 
 @router.get("/{id}/billing", response_model=schemas.BillingSummaryResponse)
