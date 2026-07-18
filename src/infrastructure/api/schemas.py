@@ -271,3 +271,19 @@ class UsageLogResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# ─── MRR & Global Metrics schemas ─────────────────────────────────────────────
+
+class MrrHistoryItem(BaseModel):
+    month: str
+    mrr_esperado: float
+    cobrado_real: float
+    clientes_activos: int
+    pagos_recibidos: int
+
+class GlobalMetricsSummary(BaseModel):
+    total_clients: int
+    active_clients: int
+    mrr_actual: float
+    total_owed: float
+    agents_count: int
