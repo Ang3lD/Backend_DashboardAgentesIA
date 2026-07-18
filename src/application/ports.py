@@ -24,12 +24,20 @@ class ClientRepositoryPort(ABC):
     def update(self, client_id: int, data: dict) -> Optional[Client]:
         pass
 
+    @abstractmethod
+    def delete(self, client_id: int) -> bool:
+        pass
+
 
 class AgentRepositoryPort(ABC):
     """Interface for Agent repository operations."""
 
     @abstractmethod
     def get_by_client_id(self, client_id: int) -> List[Agent]:
+        pass
+
+    @abstractmethod
+    def delete(self, agent_id: int) -> bool:
         pass
 
 

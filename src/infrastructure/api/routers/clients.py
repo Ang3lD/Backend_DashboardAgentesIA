@@ -7,10 +7,12 @@ GET    /api/clients                          — list clients (optional ?status=
 GET    /api/clients/{id}                     — single client
 POST   /api/clients                          — create client
 PUT    /api/clients/{id}                     — update client
+DELETE /api/clients/{id}                     — delete client
 
 GET    /api/clients/{id}/agents              — agents for a client
 POST   /api/clients/{id}/agents              — create agent under client
 PUT    /api/clients/{id}/agents/{agent_id}   — update agent under client
+DELETE /api/clients/{id}/agents/{agent_id}   — delete agent under client
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List, Optional
@@ -99,6 +101,14 @@ def update_client(
     return updated
 
 
+@router.delete("/{id}", status_code=204)
+def delete_client(id: int, service: ClientService = Depends(get_client_service)):
+    """Deletes a specific client by ID."""
+    success = service.delete_client(id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Client not found")
+
+
 # ─── Agents (nested under client) ────────────────────────────────────────────
 
 @router.get("/{id}/agents", response_model=List[schemas.AgentResponse])
@@ -139,3 +149,18 @@ def update_agent(
             detail="Agent not found or does not belong to this client",
         )
     return updated
+
+
+@router.delete("/{id}/agents/{agent_id}", status_code=204)
+def delete_agent(
+    id: int,
+    agent_id: int,
+    service: ClientService = Depends(get_client_service),
+):
+    """Deletes an agent that belongs to the specified client."""
+    success = service.delete_agent(id, agent_id)
+    if not success:
+        raise HTTPException(
+            status_code=404,
+            detail="Agent not found or does not belong to this client",
+        )

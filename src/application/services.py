@@ -35,6 +35,10 @@ class ClientService:
         """Updates an existing client with the provided fields."""
         return self.client_repository.update(client_id, data)
 
+    def delete_client(self, client_id: int) -> bool:
+        """Deletes a specific client by ID."""
+        return self.client_repository.delete(client_id)
+
     # ── Agents ────────────────────────────────────────────────────────────────
 
     def get_client_agents(self, client_id: int) -> List[Agent]:
@@ -52,6 +56,13 @@ class ClientService:
         if not agent or agent.client_id != client_id:
             return None
         return self.agent_repository.update(agent_id, data)
+
+    def delete_agent(self, client_id: int, agent_id: int) -> bool:
+        """Deletes an agent belonging to a specific client."""
+        agent = self.agent_repository.get_by_id(agent_id)
+        if not agent or agent.client_id != client_id:
+            return False
+        return self.agent_repository.delete(agent_id)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
