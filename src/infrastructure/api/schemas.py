@@ -9,6 +9,9 @@ class ClientBase(BaseModel):
     slug: str
     plan_id: Optional[int] = None
     status: str = "active"
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    contact_name: Optional[str] = None
     start_date: Optional[date] = None
     notes: Optional[str] = None
 
@@ -22,6 +25,9 @@ class ClientUpdate(BaseModel):
     slug: Optional[str] = None
     plan_id: Optional[int] = None
     status: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    contact_name: Optional[str] = None
     start_date: Optional[date] = None
     notes: Optional[str] = None
 

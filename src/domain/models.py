@@ -12,6 +12,9 @@ class Client:
     slug: str
     plan_id: Optional[int]
     status: str
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    contact_name: Optional[str] = None
     start_date: Optional[date] = None
     notes: Optional[str] = None
     created_at: Optional[datetime] = None

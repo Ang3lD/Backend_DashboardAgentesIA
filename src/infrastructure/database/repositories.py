@@ -34,6 +34,9 @@ class ClientModel(Base):
     slug        = Column(String(50), nullable=False, unique=True)
     plan_id     = Column(Integer, ForeignKey("plans.id", ondelete="SET NULL"), nullable=True)
     status      = Column(String(20), default="active")
+    phone       = Column(String(20), nullable=True)
+    email       = Column(String(100), nullable=True)
+    contact_name = Column(String(100), nullable=True)
     start_date  = Column(Date)
     notes       = Column(Text)
     created_at  = Column(DateTime, default=func.now())
@@ -99,6 +102,7 @@ class UsageLogModel(Base):
 def _client_to_domain(c: ClientModel) -> ClientDomain:
     return ClientDomain(
         id=c.id, name=c.name, slug=c.slug, plan_id=c.plan_id, status=c.status,
+        phone=c.phone, email=c.email, contact_name=c.contact_name,
         start_date=c.start_date, notes=c.notes,
         created_at=c.created_at, updated_at=c.updated_at,
     )
@@ -147,7 +151,9 @@ class ClientRepositorySQL(ClientRepositoryPort):
     def save(self, client: ClientDomain) -> ClientDomain:
         db_c = ClientModel(
             name=client.name, slug=client.slug, plan_id=client.plan_id,
-            status=client.status, start_date=client.start_date, notes=client.notes,
+            status=client.status, phone=client.phone, email=client.email,
+            contact_name=client.contact_name, start_date=client.start_date,
+            notes=client.notes,
         )
         self.db.add(db_c)
         self.db.commit()
