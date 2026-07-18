@@ -8,7 +8,11 @@ POST   /api/clients/{id}/payments               — register payment
 DELETE /api/clients/{id}/payments/{payment_id}  — delete payment
 """
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import Response
 from typing import List
+import csv
+import io
+from datetime import datetime
 
 from src.infrastructure.api import schemas
 from src.application.services import BillingService
@@ -27,6 +31,41 @@ def get_payments(
     if not summary:
         raise HTTPException(status_code=404, detail="Client not found")
     return service.get_payments(id)
+
+
+@router.get("/{id}/payments/export")
+def export_payments(
+    id: int,
+    service: BillingService = Depends(get_billing_service),
+):
+    """Exports payment history for a client to a CSV file."""
+    client = service.client_repository.get_by_id(id)
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+
+    payments = service.get_payments(id)
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["periodo", "monto_mxn", "fecha_pago", "notas"])
+    
+    for p in payments:
+        writer.writerow([
+            p.period_month,
+            p.amount_mxn,
+            p.paid_at.isoformat() if p.paid_at else "",
+            p.notes or ""
+        ])
+
+    current_month = datetime.now().strftime("%Y-%m")
+    filename = f"pagos_{client.slug}_{current_month}.csv"
+
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
 
 
 @router.post("/{id}/payments", response_model=schemas.PaymentResponse, status_code=201)
