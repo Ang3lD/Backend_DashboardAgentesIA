@@ -17,8 +17,9 @@ from typing import List, Optional
 
 from src.infrastructure.api import schemas
 from src.application.services import ClientService
+from src.application.usage_service import UsageService
 from src.domain.models import Client
-from src.infrastructure.api.dependencies import get_client_service
+from src.infrastructure.api.dependencies import get_client_service, get_usage_service
 
 router = APIRouter(prefix="/api/clients", tags=["Clients"])
 
@@ -45,6 +46,27 @@ def get_client(id: int, service: ClientService = Depends(get_client_service)):
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
     return client
+
+
+@router.get("/{id}/usage", response_model=schemas.ClientUsageResponse)
+def get_client_usage(
+    id: int, 
+    period: Optional[str] = None, 
+    service: UsageService = Depends(get_usage_service)
+):
+    """Returns the usage details for a specific client. Defaults to current month (YYYY-MM)."""
+    import re
+    if period and not re.match(r"^\d{4}-\d{2}$", period):
+        raise HTTPException(status_code=400, detail="El parámetro 'period' debe tener el formato YYYY-MM (ej. 2026-06)")
+
+    from datetime import datetime
+    if not period:
+        period = datetime.now().strftime("%Y-%m")
+        
+    result = service.get_client_usage(id, period)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return result
 
 
 @router.post("", response_model=schemas.ClientResponse, status_code=201)

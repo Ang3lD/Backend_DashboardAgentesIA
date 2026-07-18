@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from src.domain.models import Client, Agent, Payment
+from src.domain.models import Client, Agent, Payment, UsageLog
 
 # Ports: Interfaces defining how the application interacts with external systems.
 # The concrete implementations will reside in the infrastructure layer.
@@ -50,4 +50,19 @@ class PaymentRepositoryPort(ABC):
 
     @abstractmethod
     def delete(self, payment_id: int) -> bool:
+        pass
+
+class UsageLogRepositoryPort(ABC):
+    """Interface for UsageLog repository operations."""
+
+    @abstractmethod
+    def create(self, data: dict) -> UsageLog:
+        pass
+
+    @abstractmethod
+    def get_by_client_id_and_period(self, client_id: int, period: str) -> List[UsageLog]:
+        pass
+
+    @abstractmethod
+    def get_summary_by_period(self, period: str) -> List[dict]:
         pass

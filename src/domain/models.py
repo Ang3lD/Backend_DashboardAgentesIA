@@ -43,3 +43,15 @@ class Payment:
     notes: Optional[str] = None
     created_at: Optional[datetime] = None
     id: Optional[int] = None
+
+@dataclass
+class UsageLog:
+    """Entity representing a single agent execution log."""
+    agent_id: int
+    client_id: int
+    model: str
+    tokens_in: int
+    tokens_out: int
+    cost_usd: float
+    timestamp: datetime
+    id: Optional[int] = None
