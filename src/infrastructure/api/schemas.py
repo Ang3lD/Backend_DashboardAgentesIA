@@ -223,3 +223,48 @@ class PlanResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# ─── Usage schemas ────────────────────────────────────────────────────────────
+
+class UsageLogCreate(BaseModel):
+    agent_id: int
+    tokens_in: int
+    tokens_out: int
+
+class UsageBreakdownItem(BaseModel):
+    agent_id: int
+    model: str
+    tokens_in: int
+    tokens_out: int
+    total_tokens: int
+    cost_usd: float
+    runs: int
+
+class ClientUsageResponse(BaseModel):
+    client_id: int
+    client_name: str
+    period: str
+    total_tokens: int
+    total_cost_usd: float
+    total_runs: int
+    breakdown: List[UsageBreakdownItem]
+
+class UsageSummaryItem(BaseModel):
+    client_id: int
+    client_name: str
+    total_tokens: int
+    total_cost_usd: float
+    total_runs: int
+
+class UsageLogResponse(BaseModel):
+    id: int
+    agent_id: int
+    client_id: int
+    model: str
+    tokens_in: int
+    tokens_out: int
+    cost_usd: float
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True

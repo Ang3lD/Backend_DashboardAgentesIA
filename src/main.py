@@ -13,6 +13,7 @@ from src.infrastructure.api.routers.payments import router as payments_router
 from src.infrastructure.api.routers.health import router as health_router
 from src.infrastructure.api.routers.logs import router as logs_router
 from src.infrastructure.api.routers.plans import router as plans_router
+from src.infrastructure.api.routers.usage import router as usage_router
 from src.infrastructure.api.auth_routes import auth_router
 from src.application.auth_service import ensure_default_admin
 
@@ -57,7 +58,7 @@ app.include_router(payments_router)  # /api/clients/{id}/payments
 app.include_router(health_router)   # /api/health
 app.include_router(logs_router)     # /api/logs
 app.include_router(plans_router)    # /api/plans
-
+app.include_router(usage_router)    # /api/usage
 # ─── Startup ──────────────────────────────────────────────────────────────────
 @app.on_event("startup")
 def on_startup():
