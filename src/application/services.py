@@ -129,6 +129,20 @@ class BillingService:
                     missing_periods.append(label)
                 cursor += relativedelta(months=1)
 
+        # Payment Alerts
+        next_payment_due = missing_periods[0] if missing_periods else today.strftime("%Y-%m")
+        
+        days_until_overdue = None
+        if billing_status == "current":
+            import calendar
+            last_day_of_month = calendar.monthrange(today.year, today.month)[1]
+            days_until_overdue = last_day_of_month - today.day
+            
+        overdue_since = None
+        if months_owed > 0 and missing_periods:
+            y, m = missing_periods[0].split("-")
+            overdue_since = date(int(y), int(m), 1).isoformat()
+
         # Serialize payments
         payments_data = [
             {
@@ -156,6 +170,9 @@ class BillingService:
             "last_paid_at": last_paid_at.isoformat() if last_paid_at else None,
             "days_since_payment": days_since_payment,
             "billing_status": billing_status,
+            "next_payment_due": next_payment_due,
+            "days_until_overdue": days_until_overdue,
+            "overdue_since": overdue_since,
             "paid_periods": paid_periods,
             "missing_periods": missing_periods,
             "payments": payments_data,

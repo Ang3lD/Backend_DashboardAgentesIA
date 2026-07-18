@@ -124,6 +124,9 @@ class BillingSummaryResponse(BaseModel):
     last_paid_at: Optional[str] = None
     days_since_payment: Optional[int] = None
     billing_status: str          # "current" | "overdue" | "critical"
+    next_payment_due: str
+    days_until_overdue: Optional[int] = None
+    overdue_since: Optional[str] = None
     paid_periods: List[str]
     missing_periods: List[str]
     payments: List[dict]
