@@ -67,6 +67,78 @@ class BillingService:
         self.client_repository = client_repository
         self.payment_repository = payment_repository
 
+    def get_month_summary(self, month: str = None) -> dict:
+        """
+        Returns a billing summary for a specific month (e.g. '2026-06').
+        Defaults to the current month if none is provided.
+        """
+        from datetime import date
+        from dateutil.relativedelta import relativedelta
+        import calendar
+
+        if not month:
+            today = date.today()
+            month = today.strftime("%Y-%m")
+            
+        year_str, month_str = month.split("-")
+        if int(month_str) == 12:
+            next_month_date = date(int(year_str) + 1, 1, 1)
+        else:
+            next_month_date = date(int(year_str), int(month_str) + 1, 1)
+            
+        db = getattr(self.client_repository, "db", None)
+        if not db:
+            return {}
+
+        from src.infrastructure.database.repositories import ClientModel, PlanModel, PaymentModel
+        
+        active_clients_query = (
+            db.query(ClientModel)
+            .join(PlanModel, ClientModel.plan_id == PlanModel.id)
+            .filter(ClientModel.status == "active")
+            .filter(ClientModel.start_date < next_month_date)
+        )
+        
+        active_clients = active_clients_query.all()
+        clients_total = len(active_clients)
+        expected_mxn = sum(float(c.plan.price_mxn) for c in active_clients if c.plan)
+        
+        payments = (
+            db.query(PaymentModel)
+            .filter(PaymentModel.period_month == month)
+            .all()
+        )
+        
+        paid_client_ids = {p.client_id for p in payments}
+        collected_mxn = sum(float(p.amount_mxn) for p in payments)
+        
+        pending_clients = []
+        clients_paid = 0
+        clients_pending = 0
+        
+        for c in active_clients:
+            if c.id in paid_client_ids:
+                clients_paid += 1
+            else:
+                clients_pending += 1
+                pending_clients.append({
+                    "id": c.id,
+                    "name": c.name,
+                    "monthly_fee": float(c.plan.price_mxn) if c.plan else 0.0
+                })
+                
+        pending_mxn = expected_mxn - collected_mxn
+        
+        return {
+            "clients_total": clients_total,
+            "clients_paid": clients_paid,
+            "clients_pending": clients_pending,
+            "expected_mxn": expected_mxn,
+            "collected_mxn": collected_mxn,
+            "pending_mxn": pending_mxn,
+            "pending_clients": pending_clients
+        }
+
     # ── Internal helper ───────────────────────────────────────────────────────
 
     def _build_summary(self, client_id: int) -> Optional[dict]:
