@@ -14,6 +14,7 @@ from src.infrastructure.api.routers.health import router as health_router
 from src.infrastructure.api.routers.logs import router as logs_router
 from src.infrastructure.api.routers.plans import router as plans_router
 from src.infrastructure.api.routers.usage import router as usage_router
+from src.infrastructure.api.routers.metrics import router as metrics_router
 from src.infrastructure.api.auth_routes import auth_router
 from src.application.auth_service import ensure_default_admin
 
@@ -59,6 +60,7 @@ app.include_router(health_router)   # /api/health
 app.include_router(logs_router)     # /api/logs
 app.include_router(plans_router)    # /api/plans
 app.include_router(usage_router)    # /api/usage
+app.include_router(metrics_router)  # /api/metrics
 # ─── Startup ──────────────────────────────────────────────────────────────────
 @app.on_event("startup")
 def on_startup():

@@ -10,6 +10,7 @@ from src.infrastructure.database.repositories import (
 )
 from src.application.services import ClientService, BillingService
 from src.application.usage_service import UsageService
+from src.application.metrics_service import MetricsService
 
 
 def get_client_service(db: Session = Depends(get_db)) -> ClientService:
@@ -39,4 +40,10 @@ def get_usage_service(db: Session = Depends(get_db)) -> UsageService:
     agent_repo = AgentRepositorySQL(db)
     client_repo = ClientRepositorySQL(db)
     return UsageService(usage_repo, agent_repo, client_repo)
+
+def get_metrics_service(db: Session = Depends(get_db), billing_service: BillingService = Depends(get_billing_service)) -> MetricsService:
+    """
+    Dependency injection for the MetricsService.
+    """
+    return MetricsService(db=db, billing_service=billing_service)
 
